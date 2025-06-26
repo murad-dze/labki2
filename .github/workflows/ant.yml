@@ -1,0 +1,78 @@
+public class Main {
+
+    enum Player { X, O }
+
+    // Счётчики результатов
+    private static long xWins = 0;
+    private static long oWins = 0;
+    private static long draws = 0;
+
+    public static void main(String[] args) {
+        // Пустое поле 3×3
+        char[][] board = new char[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board[i][j] = ' ';
+            }
+        }
+        // Начинаем с X
+        simulate(board, Player.X);
+
+        long total = xWins + oWins + draws;
+        System.out.println("Total games: " + total);
+        System.out.printf("X wins: %d (%.6f)%n", xWins, (double)xWins / total);
+        System.out.printf("O wins: %d (%.6f)%n", oWins, (double)oWins / total);
+        System.out.printf("Draws : %d (%.6f)%n", draws, (double)draws / total);
+    }
+
+    // Рекурсивный перебор ходов
+    private static void simulate(char[][] board, Player current) {
+        // Проверяем, не завершилась ли игра на предыдущем ходе
+        Player prev = (current == Player.X ? Player.O : Player.X);
+        if (isWin(board, prev)) {
+            if (prev == Player.X) xWins++;
+            else oWins++;
+            return;
+        }
+        // Проверяем на ничью (нет пустых клеток)
+        if (isFull(board)) {
+            draws++;
+            return;
+        }
+
+        // Для каждой свободной клетки делаем ход и рекурсируем
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == ' ') {
+                    board[i][j] = (current == Player.X) ? 'X' : 'O';
+                    simulate(board, current == Player.X ? Player.O : Player.X);
+                    board[i][j] = ' ';
+                }
+            }      
+        }
+    }
+
+    // Проверка, заполнено ли поле
+    private static boolean isFull(char[][] board) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == ' ') return false;
+            }
+        }
+        return true;
+    }
+
+    // Проверка победы игрока p
+    private static boolean isWin(char[][] board, Player p) {
+        char c = (p == Player.X) ? 'X' : 'O';
+        // Строки и столбцы
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == c && board[i][1] == c && board[i][2] == c) return true;
+            if (board[0][i] == c && board[1][i] == c && board[2][i] == c) return true;
+        }
+        // Диагонали
+        if (board[0][0] == c && board[1][1] == c && board[2][2] == c) return true;
+        if (board[0][2] == c && board[1][1] == c && board[2][0] == c) return true;
+        return false;
+    }
+}
